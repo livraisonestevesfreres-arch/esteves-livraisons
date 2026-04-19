@@ -4,177 +4,823 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Esteves Frères — Livraisons</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: Arial, sans-serif; background: #f5f5f5; }
-  .header { background: #1a1a2e; color: white; padding: 20px; display: flex; align-items: center; gap: 15px; }
-  .header h1 { font-size: 22px; }
-  .header p { font-size: 13px; color: #aaa; }
-  .filters { background: white; padding: 15px 20px; display: flex; gap: 10px; flex-wrap: wrap; border-bottom: 1px solid #ddd; }
-  .filters input, .filters select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
-  .filters input { flex: 1; min-width: 200px; }
-  table { width: 100%; border-collapse: collapse; background: white; margin-top: 10px; }
-  th { background: #1a1a2e; color: white; padding: 12px 10px; text-align: left; font-size: 13px; }
-  td { padding: 10px; border-bottom: 1px solid #eee; font-size: 13px; }
-  tr:hover { background: #f9f9f9; }
-  .badge { padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
-  .badge.urgent { background: #fee2e2; color: #dc2626; }
-  .badge.grue { background: #fef3c7; color: #d97706; }
-  .badge.complete { background: #dcfce7; color: #16a34a; }
-  .badge.annule { background: #fee2e2; color: #dc2626; text-decoration: line-through; }
-  .badge.en_attente { background: #e0e7ff; color: #4338ca; }
-  .btn-annuler { background: #fee2e2; color: #dc2626; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; }
-  .btn-annuler:hover { background: #fca5a5; }
-  .loading { text-align: center; padding: 40px; color: #888; }
-  .stats { display: flex; gap: 15px; padding: 15px 20px; flex-wrap: wrap; }
-  .stat { background: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); min-width: 150px; }
-  .stat h3 { font-size: 28px; color: #1a1a2e; }
-  .stat p { font-size: 12px; color: #888; margin-top: 4px; }
-  .container { padding: 0 20px 20px; }
+:root {
+  --bg: #0a0f1e;
+  --surface: #111827;
+  --surface2: #1a2235;
+  --border: #1e2d45;
+  --text: #e8edf5;
+  --text2: #8899b4;
+  --text3: #4a5f7a;
+  --blue: #2563eb;
+  --blue2: #3b82f6;
+  --green: #16a34a;
+  --green2: #22c55e;
+  --orange: #d97706;
+  --orange2: #f59e0b;
+  --red: #dc2626;
+  --red2: #ef4444;
+  --purple: #7c3aed;
+  --purple2: #a78bfa;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Space Grotesk',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+/* LOGIN */
+#login-screen {
+  position:fixed; inset:0; background:var(--bg); display:flex;
+  align-items:center; justify-content:center; z-index:999;
+}
+.login-box {
+  background:var(--surface); border:1px solid var(--border); border-radius:16px;
+  padding:40px; width:340px; text-align:center;
+}
+.login-logo { font-size:48px; margin-bottom:16px; }
+.login-title { font-size:22px; font-weight:700; color:var(--text); margin-bottom:4px; }
+.login-sub { font-size:13px; color:var(--text2); margin-bottom:28px; }
+.login-input {
+  width:100%; padding:12px 16px; background:var(--bg); border:1px solid var(--border);
+  border-radius:10px; color:var(--text); font-size:15px; margin-bottom:12px; font-family:inherit;
+}
+.login-input:focus { outline:none; border-color:var(--blue2); }
+.login-btn {
+  width:100%; padding:12px; background:var(--blue); border:none; border-radius:10px;
+  color:white; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit;
+  transition:background 0.2s;
+}
+.login-btn:hover { background:var(--blue2); }
+.login-err { color:var(--red2); font-size:13px; margin-top:8px; display:none; }
+
+/* HEADER */
+.header {
+  background:var(--surface); border-bottom:1px solid var(--border);
+  padding:12px 20px; display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; z-index:100;
+}
+.header-left { display:flex; align-items:center; gap:12px; }
+.logo { width:42px; height:42px; border-radius:10px; background:linear-gradient(135deg,#f97316,#dc2626); display:flex; align-items:center; justify-content:center; font-size:22px; }
+.brand-name { font-weight:700; font-size:16px; color:var(--text); }
+.brand-sub { font-size:11px; color:var(--text3); }
+.header-right { display:flex; gap:8px; align-items:center; }
+.badge-urgent { background:var(--red); color:white; border-radius:20px; padding:4px 10px; font-size:12px; font-weight:600; }
+.depot-tag { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:6px 12px; font-size:12px; color:var(--text2); }
+
+/* TABS */
+.tabs { display:flex; gap:2px; padding:12px 20px 0; border-bottom:1px solid var(--border); background:var(--surface); overflow-x:auto; }
+.tab-btn {
+  padding:8px 14px; border-radius:8px 8px 0 0; border:none; cursor:pointer;
+  font-size:13px; font-weight:500; font-family:inherit; white-space:nowrap;
+  transition:all 0.2s; background:transparent; color:var(--text3);
+  border-bottom:2px solid transparent;
+}
+.tab-btn.active { background:#1e3a8a22; color:var(--blue2); border-bottom:2px solid var(--blue2); }
+.tab-btn:hover:not(.active) { color:var(--text2); background:var(--surface2); }
+
+/* MAIN */
+.main { padding:20px; max-width:1400px; }
+
+/* STATS */
+.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+.stat-card {
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:16px; position:relative; overflow:hidden;
+}
+.stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+.stat-card.blue::before { background:var(--blue2); }
+.stat-card.orange::before { background:var(--orange2); }
+.stat-card.red::before { background:var(--red2); }
+.stat-card.green::before { background:var(--green2); }
+.stat-icon { font-size:22px; margin-bottom:8px; }
+.stat-value { font-size:30px; font-weight:700; font-family:'JetBrains Mono',monospace; }
+.stat-label { font-size:12px; color:var(--text2); margin-top:4px; }
+
+/* CARDS */
+.card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; }
+.card-title { font-weight:600; font-size:14px; color:var(--text); margin-bottom:14px; }
+
+/* DELIVERIES TABLE */
+.delivery-row {
+  background:var(--surface2); border-radius:10px; padding:14px; margin-bottom:8px;
+  border-left:3px solid var(--border); display:flex; gap:14px; align-items:flex-start;
+  transition:border-color 0.2s;
+}
+.delivery-row:hover { border-left-color:var(--blue2); }
+.delivery-icon { width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.delivery-info { flex:1; }
+.delivery-title { font-weight:600; font-size:14px; color:var(--text); }
+.delivery-meta { font-size:12px; color:var(--text2); margin-top:3px; }
+.delivery-actions { display:flex; flex-direction:column; gap:6px; align-items:flex-end; }
+.tag { border-radius:6px; padding:2px 8px; font-size:11px; font-weight:600; }
+.tag-urgent { background:#dc262622; color:var(--red2); border:1px solid #dc262644; }
+.tag-grue { background:#7c3aed22; color:var(--purple2); border:1px solid #7c3aed44; }
+.tag-preload { background:#f59e0b22; color:var(--orange2); border:1px solid #f59e0b44; }
+
+/* STATUS SELECT */
+.status-sel {
+  background:transparent; border:1px solid; border-radius:6px; padding:4px 8px;
+  font-size:12px; cursor:pointer; font-family:inherit; font-weight:500;
+}
+
+/* FILTERS */
+.filters { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+.filter-sel {
+  background:var(--surface); border:1px solid var(--border); color:var(--text);
+  border-radius:8px; padding:8px 12px; font-size:13px; font-family:inherit; cursor:pointer;
+}
+.search-input {
+  flex:1; min-width:200px; background:var(--surface); border:1px solid var(--border);
+  color:var(--text); border-radius:8px; padding:8px 12px; font-size:13px; font-family:inherit;
+}
+.search-input:focus { outline:none; border-color:var(--blue2); }
+
+/* CALENDAR */
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:8px; }
+.cal-day {
+  background:var(--surface); border:1px solid var(--border); border-radius:10px;
+  padding:10px; min-height:120px;
+}
+.cal-day.today { border-color:var(--blue2); background:#1e3a8a11; }
+.cal-weekday { font-size:11px; color:var(--text3); text-transform:uppercase; }
+.cal-num { font-size:20px; font-weight:700; margin:4px 0 8px; }
+.cal-day.today .cal-num { color:var(--blue2); }
+.cal-event {
+  border-radius:5px; padding:3px 6px; margin-bottom:4px; font-size:10px;
+  border-left:3px solid; color:var(--text);
+}
+
+/* ROADMAP */
+.roadmap-card { background:var(--surface); border-radius:12px; padding:16px; margin-bottom:16px; }
+.driver-header { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+.driver-avatar { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
+.route-step {
+  display:flex; gap:12px; align-items:center; padding:10px 12px;
+  background:var(--bg); border-radius:8px; margin-bottom:6px;
+}
+.step-icon { font-size:20px; flex-shrink:0; }
+.step-time { font-size:12px; font-weight:600; min-width:50px; }
+.step-info { flex:1; }
+.step-title { font-size:13px; font-weight:600; color:var(--text); }
+.step-sub { font-size:11px; color:var(--text2); }
+
+/* FLEET */
+.fleet-card { background:var(--surface); border-radius:14px; padding:20px; margin-bottom:16px; }
+.fleet-header { display:flex; gap:16px; align-items:flex-start; margin-bottom:16px; }
+.fleet-avatar { width:60px; height:60px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; }
+.fleet-specs { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-top:12px; }
+.spec-item { background:var(--bg); border-radius:8px; padding:10px 12px; }
+.spec-label { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:0.5px; }
+.spec-value { font-size:12px; color:var(--text); margin-top:3px; }
+.grue-info { background:#7c3aed11; border:1px solid #7c3aed33; border-radius:8px; padding:10px 12px; margin-top:10px; }
+
+/* NEW FORM */
+.form-group { margin-bottom:14px; }
+.form-label { font-size:12px; color:var(--text2); display:block; margin-bottom:5px; }
+.form-input, .form-select, .form-textarea {
+  width:100%; background:var(--bg); border:1px solid var(--border);
+  border-radius:8px; padding:10px 12px; color:var(--text); font-size:13px;
+  font-family:inherit; transition:border-color 0.2s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { outline:none; border-color:var(--blue2); }
+.form-textarea { resize:vertical; }
+.toggle-btn {
+  background:var(--bg); border:1px solid var(--border); border-radius:8px;
+  padding:12px; cursor:pointer; text-align:center; font-size:13px;
+  color:var(--text2); font-family:inherit; width:100%; transition:all 0.2s;
+}
+.toggle-btn.active { background:#1e3a8a22; border-color:var(--blue2); color:var(--blue2); }
+.submit-btn {
+  width:100%; padding:14px; background:linear-gradient(135deg,var(--blue),var(--purple));
+  border:none; border-radius:10px; color:white; font-size:15px; font-weight:600;
+  cursor:pointer; font-family:inherit; transition:opacity 0.2s;
+}
+.submit-btn:hover { opacity:0.9; }
+.preview-driver { background:var(--bg); border-radius:8px; padding:12px; border:1px solid var(--border); margin-bottom:14px; }
+
+/* SUCCESS */
+.success-box { background:var(--surface); border-radius:14px; padding:32px; text-align:center; max-width:500px; margin:0 auto; }
+
+/* LOADING */
+.loading-row { text-align:center; padding:40px; color:var(--text2); font-size:14px; }
+
+/* REFRESH BTN */
+.refresh-btn {
+  background:var(--surface2); border:1px solid var(--border); color:var(--text2);
+  border-radius:8px; padding:8px 14px; cursor:pointer; font-size:13px;
+  font-family:inherit; transition:all 0.2s;
+}
+.refresh-btn:hover { border-color:var(--blue2); color:var(--blue2); }
+
+/* ANNULER BTN */
+.annuler-btn {
+  background:#dc262611; border:1px solid #dc262633; color:var(--red2);
+  border-radius:6px; padding:4px 10px; cursor:pointer; font-size:12px; font-family:inherit;
+}
+.annuler-btn:hover { background:#dc262622; }
+
+/* SYTADIN */
+.sytadin-btn {
+  background:#1e3a8a22; color:var(--blue2); border:1px solid #1e3a8a44;
+  border-radius:6px; padding:4px 8px; font-size:10px; text-decoration:none;
+  display:inline-block;
+}
+
+/* 2-col layout */
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+@media(max-width:768px) {
+  .stats-grid { grid-template-columns:repeat(2,1fr); }
+  .grid-2 { grid-template-columns:1fr; }
+  .cal-grid { grid-template-columns:repeat(3,1fr); }
+}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div>
-    <h1>🏗️ Esteves Frères — Gestion des Livraisons</h1>
-    <p id="lastUpdate">Chargement...</p>
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">🏗️</div>
+    <div class="login-title">Esteves Frères</div>
+    <div class="login-sub">Gestion des livraisons BTP</div>
+    <input class="login-input" type="password" id="pwd-input" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')checkLogin()">
+    <button class="login-btn" onclick="checkLogin()">Connexion</button>
+    <div class="login-err" id="login-err">Mot de passe incorrect</div>
   </div>
 </div>
 
-<div class="stats">
-  <div class="stat"><h3 id="statTotal">—</h3><p>Total livraisons</p></div>
-  <div class="stat"><h3 id="statAujourdhui">—</h3><p>Aujourd'hui</p></div>
-  <div class="stat"><h3 id="statUrgent">—</h3><p>Urgentes</p></div>
-  <div class="stat"><h3 id="statGrue">—</h3><p>Avec grue</p></div>
+<!-- APP -->
+<div id="app" style="display:none">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo">🏗️</div>
+    <div>
+      <div class="brand-name">Esteves Frères</div>
+      <div class="brand-sub">Gestion des livraisons BTP — Île-de-France</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div id="urgent-badge" class="badge-urgent" style="display:none"></div>
+    <div class="depot-tag">📍 Carrières-sur-Seine</div>
+    <button class="refresh-btn" onclick="loadSheetData()">🔄 Actualiser</button>
+    <div id="last-update" style="font-size:11px;color:var(--text3)"></div>
+  </div>
 </div>
 
-<div class="filters">
-  <input type="text" id="search" placeholder="🔍 Rechercher chantier, chauffeur, matériaux..." oninput="filterTable()">
-  <select id="filterStatut" onchange="filterTable()">
-    <option value="">Tous les statuts</option>
-    <option value="nouvelle">Nouvelle</option>
-    <option value="annule">Annulée</option>
-  </select>
-  <select id="filterChauffeur" onchange="filterTable()">
-    <option value="">Tous les chauffeurs</option>
-    <option value="José">José</option>
-    <option value="David">David</option>
-    <option value="Josée Luis">Josée Luis</option>
-  </select>
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="setTab('dashboard',this)">🏠 Tableau de bord</button>
+  <button class="tab-btn" onclick="setTab('deliveries',this)">📦 Livraisons</button>
+  <button class="tab-btn" onclick="setTab('calendar',this)">📅 Calendrier</button>
+  <button class="tab-btn" onclick="setTab('roadmap',this)">🗺️ Feuilles de route</button>
+  <button class="tab-btn" onclick="setTab('fleet',this)">🚛 Flotte</button>
+  <button class="tab-btn" onclick="setTab('new',this)">➕ Nouvelle demande</button>
 </div>
 
-<div class="container">
-  <div id="loading" class="loading">⏳ Chargement des livraisons...</div>
-  <table id="tableau" style="display:none">
-    <thead>
-      <tr>
-        <th>Date réception</th>
-        <th>Conducteur</th>
-        <th>Adresse chantier</th>
-        <th>Date livraison</th>
-        <th>Matériaux</th>
-        <th>Poids (kg)</th>
-        <th>Chauffeur</th>
-        <th>Véhicule</th>
-        <th>Flags</th>
-        <th>Statut</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
-  </table>
-</div>
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <div id="tab-dashboard">
+    <div class="stats-grid">
+      <div class="stat-card blue"><div class="stat-icon">📦</div><div class="stat-value" id="stat-total" style="color:var(--blue2)">—</div><div class="stat-label">Total livraisons</div></div>
+      <div class="stat-card orange"><div class="stat-icon">📅</div><div class="stat-value" id="stat-today" style="color:var(--orange2)">—</div><div class="stat-label">Aujourd'hui</div></div>
+      <div class="stat-card red"><div class="stat-icon">🚨</div><div class="stat-value" id="stat-urgent" style="color:var(--red2)">—</div><div class="stat-label">Urgentes</div></div>
+      <div class="stat-card green"><div class="stat-icon">🏗️</div><div class="stat-value" id="stat-grue" style="color:var(--green2)">—</div><div class="stat-label">Avec grue</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">📦 Livraisons du jour</div>
+        <div id="today-list"><div class="loading-row">Chargement...</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🗺️ Feuille de route type</div>
+        <div id="route-preview"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELIVERIES -->
+  <div id="tab-deliveries" style="display:none">
+    <div class="filters">
+      <input class="search-input" type="text" id="search" placeholder="🔍 Rechercher chantier, chauffeur, matériaux..." oninput="renderDeliveries()">
+      <select class="filter-sel" id="filter-statut" onchange="renderDeliveries()">
+        <option value="">Tous les statuts</option>
+        <option value="nouvelle">Nouvelle</option>
+        <option value="annule">Annulée</option>
+      </select>
+      <select class="filter-sel" id="filter-chauffeur" onchange="renderDeliveries()">
+        <option value="">Tous les chauffeurs</option>
+        <option value="José">José</option>
+        <option value="David">David</option>
+        <option value="Josée Luis">Josée Luis</option>
+      </select>
+      <button class="refresh-btn" onclick="loadSheetData()">🔄 Actualiser</button>
+    </div>
+    <div id="deliveries-list"><div class="loading-row">Chargement...</div></div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div id="tab-calendar" style="display:none">
+    <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
+      <div style="display:flex;gap:8px">
+        <button class="refresh-btn active" id="cal-week-btn" onclick="setCalView('week')" style="color:var(--blue2);border-color:var(--blue2)">Cette semaine</button>
+        <button class="refresh-btn" id="cal-month-btn" onclick="setCalView('month')">Ce mois</button>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:12px">
+        <span style="font-size:12px;color:var(--text2)">🟢 José &nbsp; 🟡 David &nbsp; 🔴 Josée Luis</span>
+      </div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+
+  <!-- ROADMAP -->
+  <div id="tab-roadmap" style="display:none">
+    <div style="background:#1e3a8a22;border:1px solid #1e3a8a44;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--text2)">
+      📬 <strong style="color:var(--blue2)">Envoi automatique prévu vendredi à 7h00</strong> — Feuilles de route hebdomadaires envoyées par email
+    </div>
+    <div id="roadmap-list"></div>
+  </div>
+
+  <!-- FLEET -->
+  <div id="tab-fleet" style="display:none">
+    <div id="fleet-list"></div>
+  </div>
+
+  <!-- NEW -->
+  <div id="tab-new" style="display:none">
+    <div style="max-width:560px;margin:0 auto">
+      <div id="form-container">
+        <div class="card">
+          <div class="card-title">📋 Nouvelle demande de livraison</div>
+          <div class="form-group">
+            <label class="form-label">Adresse du chantier *</label>
+            <input class="form-input" id="f-chantier" type="text" placeholder="Ex: 12 Rue de la Paix, Paris 75001" oninput="updatePreview()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date de livraison *</label>
+            <input class="form-input" id="f-date" type="date" oninput="updatePreview()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Conducteur de travaux</label>
+            <input class="form-input" id="f-conducteur" type="text" placeholder="Nom du demandeur">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Type de matériaux *</label>
+            <select class="form-select" id="f-materiaux" oninput="updatePreview()">
+              <option value="">Sélectionner...</option>
+              <option>Parpaings / Blocs béton</option>
+              <option>Briques</option>
+              <option>Sacs ciment / chaux</option>
+              <option>Ferraillage / acier</option>
+              <option>Carrelage / revêtement</option>
+              <option>Charpente / bois</option>
+              <option>Gravats / évacuation</option>
+              <option>Palettes matériaux divers</option>
+              <option>Équipements sanitaires</option>
+              <option>Menuiseries / fenêtres</option>
+              <option>Échafaudages</option>
+              <option>Autre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Poids estimé (kg) *</label>
+            <input class="form-input" id="f-poids" type="number" placeholder="Ex: 1500" oninput="updatePreview()">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+            <button class="toggle-btn" id="btn-urgent" onclick="toggleField('urgent')">🚨 Livraison urgente</button>
+            <button class="toggle-btn" id="btn-grue" onclick="toggleField('grue')">🦾 Grue nécessaire</button>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Notes complémentaires</label>
+            <textarea class="form-textarea" id="f-notes" rows="3" placeholder="Accès difficile, heure précise, contact sur place..."></textarea>
+          </div>
+          <div class="preview-driver" id="driver-preview" style="display:none"></div>
+          <button class="submit-btn" onclick="submitForm()">📨 Soumettre la demande</button>
+        </div>
+      </div>
+      <div id="success-container" style="display:none"></div>
+    </div>
+  </div>
+
+</div><!-- end main -->
+</div><!-- end app -->
 
 <script>
+// ==================== CONFIG ====================
 const SHEET_ID = '1-KCd2aemUe4eHnILD2u8kn6gV3IapGdEzKLCzBwzExI';
 const API_KEY = 'AIzaSyCyB8As7QNvNrGUzrym0gRh3C4jV-v1P-g';
 const RANGE = 'Feuille 1!A2:M';
+const PASSWORD = 'Esteves2026';
+
+const DEPOT = "2 Rue de la Pâture, 78420 Carrières-sur-Seine";
+const SUPPLIER = "Bâti Grès, Garches";
+
+const DRIVERS = [
+  { id:1, name:"José CABEILERA MONTEIRO", initials:"JC", truck:"Fuso Canter 3,5T", color:"#22c55e", ptac:"3,5T", usage:"Livraisons légères", icon:"🟢", benne:"—", grue:"Non" },
+  { id:2, name:"David FERNANDES", initials:"DF", truck:"Renault D 13 MED P4X2 240 E6", color:"#f59e0b", ptac:"~7,5T", usage:"Livraisons moyennes + grue légère", icon:"🟡", benne:"3600×2420×500mm", grue:"HIAB X-HIDUO 092 E-2 (portée 8m, 3650kg@1m)" },
+  { id:3, name:"Josée Luis MADUREIRA", initials:"JM", truck:"Renault C P8x4 Off Road 13L E6", color:"#ef4444", ptac:">13T", usage:"Livraisons lourdes + grue puissante", icon:"🔴", benne:"5500×2420×600mm (sur berces)", grue:"HIAB eX 262 HiPro EP-3 (grue lourde)" }
+];
+
+const STATUS_LABELS = { en_attente:"En attente", confirmé:"Confirmé", en_cours:"En cours", livré:"Livré", annule:"Annulée", nouvelle:"Nouvelle" };
+const STATUS_COLORS = { en_attente:"#6b7280", confirmé:"#3b82f6", en_cours:"#f59e0b", livré:"#22c55e", annule:"#dc2626", nouvelle:"#3b82f6" };
 
 let allData = [];
+let formState = { urgent:false, grue:false };
+let calViewMode = 'week';
 
-async function loadData() {
+// ==================== LOGIN ====================
+function checkLogin() {
+  const val = document.getElementById('pwd-input').value;
+  if(val === PASSWORD) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadSheetData();
+    renderFleet();
+    renderRoadmap();
+    renderCalendar();
+    renderRoutePreview();
+  } else {
+    document.getElementById('login-err').style.display = 'block';
+  }
+}
+document.getElementById('pwd-input').addEventListener('keydown', e => { if(e.key==='Enter') checkLogin(); });
+
+// ==================== DATA ====================
+async function loadSheetData() {
   try {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(RANGE)}?key=${API_KEY}`;
     const res = await fetch(url);
     const data = await res.json();
     allData = data.values || [];
-    renderTable(allData);
-    updateStats(allData);
-    document.getElementById('lastUpdate').textContent = 'Mis à jour : ' + new Date().toLocaleTimeString('fr-FR');
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('tableau').style.display = 'table';
+    updateStats();
+    renderDeliveries();
+    renderTodayList();
+    renderCalendar();
+    renderRoadmap();
+    const now = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+    document.getElementById('last-update').textContent = `Mis à jour ${now}`;
   } catch(e) {
-    document.getElementById('loading').textContent = '❌ Erreur de chargement. Vérifiez la configuration.';
+    console.error(e);
+    document.getElementById('deliveries-list').innerHTML = '<div class="loading-row">❌ Erreur de chargement</div>';
   }
 }
 
-function renderTable(data) {
-  const tbody = document.getElementById('tbody');
-  tbody.innerHTML = '';
-  data.forEach((row, i) => {
-    const statut = (row[12] || '').toLowerCase();
-    const urgent = (row[7] || '').toLowerCase() === 'oui';
-    const grue = (row[6] || '').toLowerCase() === 'oui';
-    const annule = statut === 'annule' || statut === 'annulé';
-    tbody.innerHTML += `
-      <tr style="${annule ? 'opacity:0.5' : ''}">
-        <td>${formatDate(row[0])}</td>
-        <td>${row[1] || '—'}</td>
-        <td>${row[2] || '—'}</td>
-        <td>${row[3] || '—'}</td>
-        <td>${row[4] || '—'}</td>
-        <td>${row[5] || '—'}</td>
-        <td>${row[9] || '—'}</td>
-        <td>${row[8] || '—'}</td>
-        <td>
-          ${urgent ? '<span class="badge urgent">🔴 URGENT</span>' : ''}
-          ${grue ? '<span class="badge grue">🏗️ GRUE</span>' : ''}
-        </td>
-        <td><span class="badge ${annule ? 'annule' : 'complete'}">${annule ? 'Annulée' : 'Active'}</span></td>
-        <td>${annule ? '—' : `<button class="btn-annuler" onclick="annuler(${i})">Annuler</button>`}</td>
-      </tr>`;
-  });
+// ==================== STATS ====================
+function updateStats() {
+  const today = new Date().toLocaleDateString('fr-FR');
+  document.getElementById('stat-total').textContent = allData.length;
+  document.getElementById('stat-today').textContent = allData.filter(r => formatDate(r[0]) === today).length;
+  const urgent = allData.filter(r => (r[7]||'').toLowerCase()==='oui' && (r[12]||'').toLowerCase()!=='annule').length;
+  document.getElementById('stat-urgent').textContent = urgent;
+  document.getElementById('stat-grue').textContent = allData.filter(r => (r[6]||'').toLowerCase()==='oui').length;
+  const badge = document.getElementById('urgent-badge');
+  if(urgent > 0) { badge.style.display='block'; badge.textContent=`🚨 ${urgent} urgent${urgent>1?'s':''}`; }
+  else badge.style.display='none';
 }
 
 function formatDate(d) {
-  if (!d) return '—';
-  if (d.includes('T')) return new Date(d).toLocaleDateString('fr-FR');
-  return d;
+  if(!d) return '—';
+  try {
+    if(d.includes('T')) return new Date(d).toLocaleDateString('fr-FR');
+    if(d.includes('-') && d.length===10) {
+      const [y,m,dd] = d.split('-');
+      return `${dd}/${m}/${y}`;
+    }
+    return d;
+  } catch(e) { return d; }
 }
 
-function updateStats(data) {
-  const today = new Date().toLocaleDateString('fr-FR');
-  document.getElementById('statTotal').textContent = data.length;
-  document.getElementById('statAujourdhui').textContent = data.filter(r => formatDate(r[0]) === today).length;
-  document.getElementById('statUrgent').textContent = data.filter(r => (r[7]||'').toLowerCase() === 'oui').length;
-  document.getElementById('statGrue').textContent = data.filter(r => (r[6]||'').toLowerCase() === 'oui').length;
+function getDriverByName(name) {
+  if(!name) return null;
+  return DRIVERS.find(d => name.toLowerCase().includes(d.initials.toLowerCase()) || name.toLowerCase().includes(d.name.split(' ')[0].toLowerCase()));
 }
 
-function filterTable() {
-  const search = document.getElementById('search').value.toLowerCase();
-  const statut = document.getElementById('filterStatut').value.toLowerCase();
-  const chauffeur = document.getElementById('filterChauffeur').value.toLowerCase();
-  const filtered = allData.filter(row => {
+function getDriverColor(row) {
+  const chauffeur = row[9] || '';
+  if(chauffeur.includes('José') && !chauffeur.includes('Josée')) return '#22c55e';
+  if(chauffeur.includes('David')) return '#f59e0b';
+  if(chauffeur.includes('Josée')) return '#ef4444';
+  return '#3b82f6';
+}
+
+// ==================== DELIVERIES ====================
+function renderDeliveries() {
+  const search = (document.getElementById('search')?.value||'').toLowerCase();
+  const statut = (document.getElementById('filter-statut')?.value||'').toLowerCase();
+  const chauffeur = (document.getElementById('filter-chauffeur')?.value||'').toLowerCase();
+
+  let filtered = allData.filter(row => {
     const text = row.join(' ').toLowerCase();
     const matchSearch = !search || text.includes(search);
     const matchStatut = !statut || (row[12]||'').toLowerCase().includes(statut);
     const matchChauffeur = !chauffeur || (row[9]||'').toLowerCase().includes(chauffeur);
     return matchSearch && matchStatut && matchChauffeur;
   });
-  renderTable(filtered);
+
+  const container = document.getElementById('deliveries-list');
+  if(filtered.length === 0) { container.innerHTML = '<div class="loading-row">Aucune livraison trouvée</div>'; return; }
+
+  container.innerHTML = filtered.map((row, i) => {
+    const annule = (row[12]||'').toLowerCase().includes('annul');
+    const urgent = (row[7]||'').toLowerCase()==='oui';
+    const grue = (row[6]||'').toLowerCase()==='oui';
+    const color = getDriverColor(row);
+    const statLabel = STATUS_LABELS[row[12]] || row[12] || 'Nouvelle';
+    const statColor = STATUS_COLORS[row[12]] || '#3b82f6';
+    return `
+      <div class="delivery-row" style="border-left-color:${color};opacity:${annule?0.5:1}">
+        <div class="delivery-icon" style="background:${color}22;border:2px solid ${color}">${grue?'🏗️':'📦'}</div>
+        <div class="delivery-info">
+          <div class="delivery-title">${row[2]||'—'}</div>
+          <div class="delivery-meta" style="color:${color}">${row[9]||'—'} · ${row[8]||'—'}</div>
+          <div class="delivery-meta">${row[4]||'—'} · ${row[5]||'—'} kg · ${formatDate(row[3])}</div>
+          ${row[1]?`<div class="delivery-meta">👷 ${row[1]}</div>`:''}
+        </div>
+        <div class="delivery-actions">
+          ${urgent?'<span class="tag tag-urgent">🚨 URGENT</span>':''}
+          ${grue?'<span class="tag tag-grue">🦾 Grue</span>':''}
+          <span class="tag" style="background:${statColor}22;color:${statColor};border:1px solid ${statColor}44">${statLabel}</span>
+          ${!annule?`<button class="annuler-btn" onclick="annulerLivraison(${allData.indexOf(row)})">Annuler</button>`:'<span style="font-size:11px;color:var(--red2)">✕ Annulée</span>'}
+        </div>
+      </div>`;
+  }).join('');
 }
 
-function annuler(index) {
-  if (confirm('Confirmer l\'annulation de cette livraison ?')) {
-    allData[index][12] = 'annule';
-    renderTable(allData);
-    alert('Livraison marquée comme annulée.\n⚠️ Pensez à mettre à jour Google Sheets manuellement.');
+function annulerLivraison(i) {
+  if(confirm('Confirmer l\'annulation de cette livraison ?')) {
+    allData[i][12] = 'annule';
+    renderDeliveries();
+    renderTodayList();
+    updateStats();
+    alert('Livraison annulée.\n⚠️ Pensez à mettre à jour Google Sheets si nécessaire.');
   }
 }
 
-loadData();
-setInterval(loadData, 60000);
+// ==================== TODAY ====================
+function renderTodayList() {
+  const today = new Date().toLocaleDateString('fr-FR');
+  const todayRows = allData.filter(r => formatDate(r[0]) === today || formatDate(r[3]) === today);
+  const container = document.getElementById('today-list');
+  if(todayRows.length === 0) { container.innerHTML = '<div style="color:var(--text3);font-size:13px">Aucune livraison planifiée aujourd\'hui</div>'; return; }
+  container.innerHTML = todayRows.map(row => {
+    const color = getDriverColor(row);
+    const urgent = (row[7]||'').toLowerCase()==='oui';
+    return `
+      <div style="background:var(--bg);border-radius:8px;padding:10px;margin-bottom:8px;border-left:3px solid ${color}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-size:13px;font-weight:600">${row[2]||'—'}</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:2px">${row[9]||'—'} · ${row[4]||'—'}</div>
+          </div>
+          <div>${urgent?'<span class="tag tag-urgent">URGENT</span>':''}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ==================== ROUTE PREVIEW ====================
+function renderRoutePreview() {
+  const steps = [
+    { time:'7h30', label:'Départ dépôt', sub:'Carrières-sur-Seine', color:'#22c55e', icon:'🏭' },
+    { time:'7h45', label:'Bâti Grès', sub:'Garches (si pré-chargé)', color:'#f59e0b', icon:'🏪' },
+    { time:'8h15', label:'Chantier 1', sub:'Premier chantier', color:'#3b82f6', icon:'🏗️' },
+    { time:'10h30', label:'Chantier 2', sub:'Deuxième chantier', color:'#3b82f6', icon:'🏗️' },
+    { time:'17h00', label:'Retour dépôt', sub:'Carrières-sur-Seine', color:'#ef4444', icon:'🏭' }
+  ];
+  document.getElementById('route-preview').innerHTML = steps.map((s,i,arr) => `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:${i<arr.length-1?'4px':'0'}">
+      <div style="width:32px;height:32px;border-radius:50%;background:${s.color}22;border:2px solid ${s.color};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${s.icon}</div>
+      <div>
+        <div style="font-size:12px;font-weight:600;color:${s.color}">${s.time} — ${s.label}</div>
+        <div style="font-size:11px;color:var(--text3)">${s.sub}</div>
+      </div>
+    </div>
+    ${i<arr.length-1?`<div style="width:2px;height:12px;background:var(--border);margin-left:15px"></div>`:''}
+  `).join('');
+}
+
+// ==================== CALENDAR ====================
+function setCalView(mode) {
+  calViewMode = mode;
+  document.getElementById('cal-week-btn').style.cssText = mode==='week'?'color:var(--blue2);border-color:var(--blue2)':'';
+  document.getElementById('cal-month-btn').style.cssText = mode==='month'?'color:var(--blue2);border-color:var(--blue2)':'';
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const grid = document.getElementById('cal-grid');
+  const today = new Date();
+  const days = [];
+
+  if(calViewMode === 'week') {
+    grid.style.gridTemplateColumns = 'repeat(7,1fr)';
+    for(let i=0; i<7; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() + i);
+      days.push(d);
+    }
+  } else {
+    grid.style.gridTemplateColumns = 'repeat(7,1fr)';
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    const lastDay = new Date(today.getFullYear(), today.getMonth()+1, 0);
+    for(let d=new Date(firstDay); d<=lastDay; d.setDate(d.getDate()+1)) {
+      days.push(new Date(d));
+    }
+  }
+
+  const todayStr = today.toLocaleDateString('fr-FR');
+  grid.innerHTML = days.map(day => {
+    const dayStr = day.toLocaleDateString('fr-FR');
+    const isToday = dayStr === todayStr;
+    const weekday = day.toLocaleDateString('fr-FR', {weekday:'short'});
+    const dayNum = day.getDate();
+    const isoStr = day.toISOString().split('T')[0];
+
+    const dayRows = allData.filter(r => {
+      const d3 = r[3]||'';
+      if(d3.includes('T')) return new Date(d3).toLocaleDateString('fr-FR') === dayStr;
+      if(d3.includes('-')) { const [y,m,dd]=d3.split('-'); return `${dd}/${m}/${y}`===dayStr; }
+      return d3 === dayStr;
+    });
+
+    const events = dayRows.map(r => {
+      const color = getDriverColor(r);
+      const urgent = (r[7]||'').toLowerCase()==='oui';
+      const chauffeur = r[9]||'';
+      let initials = '?';
+      if(chauffeur.includes('José') && !chauffeur.includes('Josée')) initials='JC';
+      else if(chauffeur.includes('David')) initials='DF';
+      else if(chauffeur.includes('Josée')) initials='JM';
+      return `<div class="cal-event" style="background:${color}22;border-left-color:${color}">
+        <div style="font-weight:600">${urgent?'🚨 ':''}${initials}</div>
+        <div style="color:var(--text2);font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${(r[2]||'').split(',')[0]}</div>
+      </div>`;
+    }).join('');
+
+    return `<div class="cal-day ${isToday?'today':''}">
+      <div class="cal-weekday">${weekday}</div>
+      <div class="cal-num">${dayNum}</div>
+      ${events || '<div style="font-size:11px;color:var(--text3)">—</div>'}
+    </div>`;
+  }).join('');
+}
+
+// ==================== ROADMAP ====================
+function renderRoadmap() {
+  const container = document.getElementById('roadmap-list');
+  container.innerHTML = DRIVERS.map(driver => {
+    const driverRows = allData.filter(r => {
+      const c = (r[9]||'').toLowerCase();
+      return c.includes(driver.name.split(' ')[0].toLowerCase()) ||
+             (driver.id===1 && c.includes('josé') && !c.includes('josée')) ||
+             (driver.id===2 && c.includes('david')) ||
+             (driver.id===3 && c.includes('josée luis'));
+    });
+
+    const steps = [
+      `<div class="route-step"><div class="step-icon">🏭</div><div class="step-time" style="color:var(--green2)">7h30</div><div class="step-info"><div class="step-title">Départ dépôt</div><div class="step-sub">${DEPOT}</div></div></div>`
+    ];
+
+    driverRows.slice(0,5).forEach((r, i) => {
+      const urgent = (r[7]||'').toLowerCase()==='oui';
+      const grue = (r[6]||'').toLowerCase()==='oui';
+      steps.push(`
+        <div class="route-step" style="border-left:3px solid ${urgent?'var(--red2)':driver.color}">
+          <div class="step-icon">🏗️</div>
+          <div class="step-time" style="color:${driver.color}">Lv. ${i+1}</div>
+          <div class="step-info">
+            <div class="step-title">${urgent?'🚨 ':''}${formatDate(r[3])} — ${r[2]||'—'}</div>
+            <div class="step-sub">${r[4]||'—'} · ${r[5]||'—'} kg${grue?' · Grue requise':''}</div>
+          </div>
+          <a class="sytadin-btn" href="https://www.sytadin.fr" target="_blank">🗺️ Sytadin</a>
+        </div>`);
+    });
+
+    steps.push(`<div class="route-step"><div class="step-icon">🏭</div><div class="step-time" style="color:var(--red2)">17h00</div><div class="step-info"><div class="step-title">Retour dépôt</div><div class="step-sub">${DEPOT}</div></div></div>`);
+
+    return `
+      <div class="roadmap-card" style="border:1px solid ${driver.color}44">
+        <div class="driver-header">
+          <div class="driver-avatar" style="background:${driver.color}22;border:2px solid ${driver.color}">${driver.icon}</div>
+          <div>
+            <div style="font-weight:700;font-size:15px">${driver.name}</div>
+            <div style="font-size:12px;color:var(--text2)">${driver.truck}</div>
+          </div>
+          <div style="margin-left:auto;background:${driver.color}22;color:${driver.color};border-radius:8px;padding:4px 10px;font-size:12px">${driverRows.length} livraison(s)</div>
+        </div>
+        ${steps.join('')}
+      </div>`;
+  }).join('');
+}
+
+// ==================== FLEET ====================
+function renderFleet() {
+  document.getElementById('fleet-list').innerHTML = DRIVERS.map(d => `
+    <div class="fleet-card" style="border:1px solid ${d.color}44">
+      <div class="fleet-header">
+        <div class="fleet-avatar" style="background:${d.color}22;border:2px solid ${d.color}">${d.icon}</div>
+        <div>
+          <div style="font-size:16px;font-weight:700">${d.name}</div>
+          <div style="font-size:13px;color:${d.color};font-weight:600;margin-top:2px">${d.truck}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:4px">${d.usage}</div>
+        </div>
+      </div>
+      <div class="fleet-specs">
+        <div class="spec-item"><div class="spec-label">PTAC</div><div class="spec-value">${d.ptac}</div></div>
+        <div class="spec-item"><div class="spec-label">Benne</div><div class="spec-value">${d.benne||'—'}</div></div>
+        <div class="spec-item" style="grid-column:span 2"><div class="spec-label">Grue</div><div class="spec-value">${d.grue!=='Non'?d.grue:'—'}</div></div>
+      </div>
+      ${d.grue!=='Non'?`<div class="grue-info"><div style="font-size:11px;color:var(--purple2);font-weight:600;margin-bottom:4px">🦾 Capacités grue</div><div style="font-size:11px;color:var(--text2)">${d.id===2?'3 650 kg @ 1m · 1 940 kg @ 2m · 1 360 kg @ 3m · 1 000 kg @ 8m (portée max)':'HIAB eX 262 HiPro EP-3 — Grue lourde haute performance'}</div></div>`:''}
+    </div>`).join('');
+}
+
+// ==================== NEW FORM ====================
+function toggleField(field) {
+  formState[field] = !formState[field];
+  document.getElementById(`btn-${field}`).className = 'toggle-btn' + (formState[field]?' active':'');
+  updatePreview();
+}
+
+function selectDriver(poids, grue) {
+  if(!grue && poids <= 1500) return DRIVERS[0];
+  if(grue && poids <= 3500) return DRIVERS[1];
+  return DRIVERS[2];
+}
+
+function updatePreview() {
+  const poids = parseInt(document.getElementById('f-poids').value)||0;
+  const preview = document.getElementById('driver-preview');
+  if(poids > 0) {
+    const drv = selectDriver(poids, formState.grue);
+    preview.style.display = 'block';
+    preview.innerHTML = `<div style="font-size:12px;color:var(--text2);margin-bottom:4px">🤖 Attribution automatique :</div><div style="font-weight:600;color:${drv.color}">${drv.icon} ${drv.name} — ${drv.truck}</div>`;
+  } else {
+    preview.style.display = 'none';
+  }
+}
+
+function submitForm() {
+  const chantier = document.getElementById('f-chantier').value;
+  const date = document.getElementById('f-date').value;
+  const materiaux = document.getElementById('f-materiaux').value;
+  const poids = document.getElementById('f-poids').value;
+  const conducteur = document.getElementById('f-conducteur').value;
+  const notes = document.getElementById('f-notes').value;
+
+  if(!chantier || !date || !materiaux || !poids) {
+    alert('⚠️ Veuillez remplir tous les champs obligatoires (*)');
+    return;
+  }
+
+  const drv = selectDriver(parseInt(poids), formState.grue);
+  document.getElementById('form-container').style.display = 'none';
+  document.getElementById('success-container').style.display = 'block';
+  document.getElementById('success-container').innerHTML = `
+    <div class="success-box">
+      <div style="font-size:48px;margin-bottom:12px">✅</div>
+      <div style="font-size:18px;font-weight:700;color:var(--green2);margin-bottom:8px">Demande enregistrée !</div>
+      <div style="background:var(--bg);border-radius:10px;padding:16px;margin-bottom:16px;text-align:left">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:8px">📋 Récapitulatif :</div>
+        <div style="font-size:13px;margin-bottom:4px">📍 ${chantier}</div>
+        <div style="font-size:13px;margin-bottom:4px">📅 ${date}</div>
+        <div style="font-size:13px;margin-bottom:12px">📦 ${materiaux} · ${poids} kg</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:6px">🚛 Véhicule attribué :</div>
+        <div style="font-weight:700;color:${drv.color};font-size:15px">${drv.icon} ${drv.name}</div>
+        <div style="font-size:12px;color:var(--text2)">${drv.truck}</div>
+      </div>
+      <button onclick="resetForm()" style="background:var(--blue);color:white;border:none;border-radius:8px;padding:10px 20px;cursor:pointer;font-size:14px;font-family:inherit">+ Nouvelle demande</button>
+    </div>`;
+}
+
+function resetForm() {
+  document.getElementById('form-container').style.display = 'block';
+  document.getElementById('success-container').style.display = 'none';
+  document.getElementById('f-chantier').value = '';
+  document.getElementById('f-date').value = '';
+  document.getElementById('f-conducteur').value = '';
+  document.getElementById('f-materiaux').value = '';
+  document.getElementById('f-poids').value = '';
+  document.getElementById('f-notes').value = '';
+  formState = { urgent:false, grue:false };
+  document.getElementById('btn-urgent').className = 'toggle-btn';
+  document.getElementById('btn-grue').className = 'toggle-btn';
+  document.getElementById('driver-preview').style.display = 'none';
+}
+
+// ==================== TABS ====================
+function setTab(id, btn) {
+  ['dashboard','deliveries','calendar','roadmap','fleet','new'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===id?'block':'none';
+  });
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// Auto-refresh
+setInterval(loadSheetData, 60000);
 </script>
 </body>
 </html>
